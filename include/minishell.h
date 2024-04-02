@@ -6,7 +6,7 @@
 /*   By: sparth <sparth@student.42heilbronn.de>     +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/02/16 10:44:13 by aweissha          #+#    #+#             */
-/*   Updated: 2024/03/25 17:19:22 by sparth           ###   ########.fr       */
+/*   Updated: 2024/04/03 00:11:48 by sparth           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -19,6 +19,7 @@
 #include <readline/history.h>
 #include <stdlib.h>
 #include <fcntl.h>
+#include <stdbool.h>
 #include "../libft/libft.h"
 
 typedef enum
@@ -50,6 +51,8 @@ typedef struct s_node
 	char	*limiter;
 	t_node	*next;
 	// pipe type
+	// int		fd[2];
+	// int		pipe_end;
 	t_node	*left;
 	t_node	*right;
 }	t_node;
@@ -70,6 +73,15 @@ typedef struct s_data
 	t_token	*token_list;
 	t_node	*parse_tree;
 }	t_data;
+
+typedef struct s_path_prep
+{
+	char	**directory;
+	char	*cmd_prep;
+	char	*pathcheck;
+	char	*first_cmd;
+	char	*paths;
+}			t_path_prep;
 
 // error.c
 void	ft_error(char *message, int code);
@@ -112,6 +124,7 @@ void	ft_tokadd_back(t_token **token_list, t_token *new);
 int		ft_fork(void);
 
 //exec.c
+void	pre_exec(t_node *node);
 void	exec(t_node *node);
 
 

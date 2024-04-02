@@ -8,9 +8,18 @@ CFLAGS = -Wall -Werror -Wextra
 RM = rm -f
 
 
-SRCS = 		$(SRC_DIR)minishell.c \
-			$(SRC_DIR)init.c \
+SRCS = 		$(SRC_DIR)test.c \
 			$(SRC_DIR)error.c \
+			$(SRC_DIR)free.c \
+			$(SRC_DIR)handle_quotes.c \
+			$(SRC_DIR)init.c \
+			$(SRC_DIR)lexer.c \
+			$(SRC_DIR)parse_utils.c \
+			$(SRC_DIR)parser.c \
+			$(SRC_DIR)utils.c \
+			$(SRC_DIR)token_list_utils.c \
+			$(SRC_DIR)exec.c \
+			# $(SRC_DIR)error.c \
 
 
 OBJS = $(SRCS:.c=.o)

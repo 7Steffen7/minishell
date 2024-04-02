@@ -6,57 +6,171 @@
 /*   By: sparth <sparth@student.42heilbronn.de>     +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/03/25 16:52:02 by sparth            #+#    #+#             */
-/*   Updated: 2024/03/25 20:00:48 by sparth           ###   ########.fr       */
+/*   Updated: 2024/04/03 00:11:00 by sparth           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
 #include "../include/minishell.h"
 
+void	*free_null(char *del)
+{
+	free(del);
+	return (NULL);
+}
+
+void	path_clean(t_path_prep check, int status)
+{
+	int	i;
+
+	i = 0;
+	if (check.directory)
+	{
+		while (check.directory[i])
+			free(check.directory[i++]);
+		free(check.directory);
+	}
+	if (check.cmd_prep)
+		free(check.cmd_prep);
+	if (check.first_cmd)
+		free(check.first_cmd);
+	if (check.paths)
+		free(check.paths);
+	if (check.pathcheck && status == 0)
+		free(check.pathcheck);
+}
+
+t_path_prep	init_struct(void)
+{
+	t_path_prep	check;
+
+	check.directory = NULL;
+	check.cmd_prep = NULL;
+	check.pathcheck = NULL;
+	check.first_cmd = NULL;
+	check.paths = NULL;
+	return (check);
+}
+char	*cmd_cut(char *cmd)
+{
+	int		i;
+	int		k;
+	char	*cutted;
+
+	i = 0;
+	while (cmd[i] != ' ' && cmd[i])
+		i++;
+	cutted = (char *)malloc(sizeof(char) * i + 1);
+	if (!cutted)
+		return (NULL);
+	k = 0;
+	while (k < i)
+	{
+		cutted[k] = cmd[k];
+		k++;
+	}
+	cutted[k] = '\0';
+	return (cutted);
+}
+
+char	*path_check2(char *cmd, t_path_prep check)
+{
+	int	i;
+
+	i = 0;
+	while (check.directory[i])
+	{
+		check.pathcheck = ft_strjoin(check.directory[i], check.cmd_prep);
+		if (!check.pathcheck)
+			return (path_clean(check, 0), NULL);
+		if (access(check.pathcheck, X_OK) == 0)
+			return (path_clean(check, 1), check.pathcheck);
+		check.pathcheck = free_null(check.pathcheck);
+		i++;
+	}
+	path_clean(check, 0);
+	if (access(cmd, X_OK) == 0 && ft_strnstr(cmd, "/", ft_strlen(cmd)))
+		return (cmd);
+	return (NULL);
+}
+
+char	*path_check(char *cmd, char *path)
+{
+	t_path_prep	check;
+
+	check = init_struct();
+	check.first_cmd = cmd_cut(cmd);
+	if (!check.first_cmd)
+		return (NULL);
+	if (strncmp(check.first_cmd, "./", 2) == 0
+		&& access(check.first_cmd, X_OK) == 0)
+		return (check.first_cmd);
+	if (!path)
+		return (path_clean(check, 0), NULL);
+	if (strncmp(check.first_cmd, "./", 2) == 0
+		&& (ft_strlen(check.first_cmd) != ft_strlen(cmd) || access(cmd, X_OK)))
+		return (path_clean(check, 0), NULL);
+	check.cmd_prep = ft_strjoin("/", check.first_cmd);
+	check.first_cmd = free_null(check.first_cmd);
+	check.paths = ft_strtrim(path, "PATH=");
+	check.directory = ft_split(check.paths, ':');
+	if (!check.directory || !check.paths || !check.cmd_prep)
+		return (path_clean(check, 0), NULL);
+	check.paths = free_null(check.paths);
+	return (path_check2(cmd, check));
+}
+
 void	input_redirect(t_node *node)
 {
 	int	fd_in;
 
-	printf("infile: %s\n", node->infile);
 	fd_in = open(node->infile, O_RDONLY);
 	if (fd_in == -1)
 	{
 		printf("error opening infile\n");
 		exit(1);
 	}
-	close(fd_in);
+	if (dup2(fd_in, STDIN_FILENO) == -1)
+		exit (1);
+	if (close(fd_in) == -1)
+		exit (1);
 }
 
 void	output_redirect(t_node *node)
 {
 	int fd_out;
 	
-	printf("outfile: %s\n", node->outfile);
 	fd_out = open(node->outfile, O_WRONLY | O_CREAT | O_TRUNC, 0644);
 	if (fd_out == -1)
 	{
 		printf("error opening outfile\n");
 		exit (1);
 	}
-	close (fd_out);
+	if (dup2(fd_out, STDOUT_FILENO) == -1)
+		exit(1);
+	if (close(fd_out) == -1)
+		exit (1);
 }
 
 void	output_redirect_append(t_node *node)
 {
 	int fd_out;
 	
-	printf("outfile_append: %s\n", node->outfile);
 	fd_out = open(node->outfile, O_WRONLY | O_CREAT | O_APPEND, 0644);
 	if (fd_out == -1)
 	{
 		printf("error opening outfile\n");
 		exit (1);
 	}
-	close (fd_out);
+	if (dup2(fd_out, STDOUT_FILENO) == -1)
+		exit(1);
+	if (close(fd_out) == -1)
+		exit (1);
 }
 
 void piping(t_node *node)
 {
-		int fd[2];
+		int		fd[2];
+		int		wpidstatus;
 		pid_t	pid_left;
 		pid_t	pid_right;
 		
@@ -66,25 +180,65 @@ void piping(t_node *node)
 		if (pid_left == -1)
 			exit (1);
 		if (pid_left == 0)
+		{
+			if (dup2(fd[1], STDOUT_FILENO) == -1)
+				exit (1);
+			if (close(fd[0]) == -1 || close(fd[1]) == -1)
+				exit(1);
 			exec(node->left);
+		}
 		pid_right = fork();
 		if (pid_right == -1)
 			exit (1);
 		if (pid_right == 0)
+		{
+			if (dup2(fd[0], STDIN_FILENO) == -1)
+				exit (1);
+			if (close(fd[0]) == -1 || close(fd[1]) == -1)
+				exit(1);
 			exec(node->right);
+		}
 		if (close(fd[0]) == -1 || close(fd[1]) == -1)
 			exit (1);
 		waitpid(pid_left, NULL, 0);
-		waitpid(pid_right, NULL, 0);
+		waitpid(pid_right, &wpidstatus, 0);
+		// fprintf(stderr, "checkkkk\n");
+		// if (WIFEXITED(wpidstatus))
+		// 	exit(WEXITSTATUS(wpidstatus));
+}
+
+void	path_error_message(char *error)
+{
+	if (access(cmd_cut(error), X_OK) && access(cmd_cut(error), R_OK) == 0)
+		fprintf(stderr, "%s%s: %s\n", "minishell: ", cmd_cut(error), strerror(13));
+	else if (strncmp(error, "./", 2) == 0)
+		fprintf(stderr, "%s%s: %s\n", "minishell: ", cmd_cut(error), strerror(2));
+	else
+		fprintf(stderr, "%s%s: %s\n", "minishell: ", cmd_cut(error), "command not found");
+}
+
+void	execution(t_node *node)
+{
+	char	*path;
+	// char	**cmd;
+
+	path = path_check(node->command[0], getenv("PATH="));
+	if (!path)
+		path_error_message(node->command[0]);
+	execve(path, node->command, NULL);
+	// fprintf(stderr, "execve failed !\n");
+	if (access((path), X_OK) && access((path), W_OK) == 0)
+		exit (126);
+	exit(127);
+	
 }
 
 void	exec(t_node *node)
 {
+	// node->pipe_end = 2;
 	if (node->node_type == PIPE)
 	{
 		piping(node);
-		// exec(node->left);
-		// exec(node->right);
 	}
 	else if (node->node_type == REDINPT)
 	{
@@ -107,6 +261,27 @@ void	exec(t_node *node)
 	}
 	else if (node->node_type == EXEC)
 	{
-		
+		execution(node);
+		// printf("exec_check\n");
+		// exit (127);
+	}
+}
+
+void	pre_exec(t_node *node)
+{
+	pid_t	pid;
+	int		wpidstatus;
+	
+	if (node->node_type == PIPE)
+		exec(node);
+	else
+	{
+		pid = fork();
+		if (pid == -1)
+			exit (1);
+		if (pid == 0)
+			exec(node);
+		else
+			waitpid(pid, &wpidstatus, 0);
 	}
 }

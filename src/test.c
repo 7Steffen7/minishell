@@ -6,7 +6,7 @@
 /*   By: sparth <sparth@student.42heilbronn.de>     +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/02/16 11:07:54 by aweissha          #+#    #+#             */
-/*   Updated: 2024/03/25 17:18:29 by sparth           ###   ########.fr       */
+/*   Updated: 2024/04/03 00:11:15 by sparth           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -59,19 +59,22 @@ int	main(int argc, char **argv, char **env)
 	t_token	*tmp;
 	char	*input;
 
-	input = readline("Minishell $> ");
-	data = init_data(argc, argv, env);
-	lexer(input, data);
-
-	tmp = data->token_list;
-	while (tmp != NULL)
+	while (1)
 	{
-		printf("type: %u\ntoken_str: %s\n", tmp->token_type, tmp->token_str);
-		tmp = tmp->next;
+		input = readline("Minishell $> ");
+		data = init_data(argc, argv, env);
+		lexer(input, data);
+
+		tmp = data->token_list;
+		while (tmp != NULL)
+		{
+			// printf("type: %u\ntoken_str: %s\n", tmp->token_type, tmp->token_str);
+			tmp = tmp->next;
+		}
+		data->parse_tree = parse_pipe(data->token_list);
+		test_parse_tree(data->parse_tree);
+		pre_exec(data->parse_tree);
 	}
-	data->parse_tree = parse_pipe(data->token_list);
-	test_parse_tree(data->parse_tree);
-	exec(data->parse_tree);
 }
 
 // cc test.c error.c free.c handle_quotes.c init.c lexer.c parse_utils.c parser.c utils.c token_list_utils.c ../libft/libft.a -lreadline
