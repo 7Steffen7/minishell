@@ -6,7 +6,7 @@
 /*   By: sparth <sparth@student.42heilbronn.de>     +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/03/25 16:52:02 by sparth            #+#    #+#             */
-/*   Updated: 2024/04/03 13:46:17 by sparth           ###   ########.fr       */
+/*   Updated: 2024/04/03 17:04:00 by sparth           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -304,6 +304,13 @@ void	pre_exec(t_node *node)
 		exec(node);
 	else
 	{
+		if (node->node_type == EXEC && 
+			ft_strncmp(node->command[0], "exit", ft_strlen(node->command[0]) + 1) == 0
+			&& node->command[1] == NULL)
+		{
+			//free everything
+			exit (0);
+		}
 		pid = fork();
 		if (pid == -1)
 			exit (1);
