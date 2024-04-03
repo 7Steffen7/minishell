@@ -19,6 +19,8 @@ SRCS = 		$(SRC_DIR)test.c \
 			$(SRC_DIR)utils.c \
 			$(SRC_DIR)token_list_utils.c \
 			$(SRC_DIR)exec.c \
+			libft/get_next_line.c \
+			libft/get_next_line_utils.c \
 			# $(SRC_DIR)error.c \
 
 

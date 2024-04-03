@@ -6,7 +6,7 @@
 /*   By: sparth <sparth@student.42heilbronn.de>     +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/03/25 16:52:02 by sparth            #+#    #+#             */
-/*   Updated: 2024/04/03 00:11:00 by sparth           ###   ########.fr       */
+/*   Updated: 2024/04/03 13:46:17 by sparth           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -135,6 +135,33 @@ void	input_redirect(t_node *node)
 		exit (1);
 }
 
+void	heredoc(t_node *node)
+{
+	int		fd[2];
+	char	*line;
+
+	if (pipe(fd) == -1)
+		exit (2);
+	while (1)
+	{
+		write(1, "here_doc ", 9);
+		line = get_next_line(STDIN_FILENO);
+		if (ft_strncmp(node->limiter, line, ft_strlen(node->limiter)) == 0
+			&& ft_strlen(node->limiter) + 1 == ft_strlen(line))
+		{
+			free(line);
+			break ;
+		}
+		write(fd[1], line, ft_strlen(line));
+		free(line);
+		line = NULL;
+	}
+	if (dup2(fd[0], STDIN_FILENO) == -1)
+		exit (1);
+	if (close(fd[0]) == -1 || close(fd[1]) == -1)
+		exit (1);
+}
+
 void	output_redirect(t_node *node)
 {
 	int fd_out;
@@ -257,6 +284,7 @@ void	exec(t_node *node)
 	}
 	else if (node->node_type == HEREDOC)
 	{
+		heredoc(node);
 		exec(node->next);
 	}
 	else if (node->node_type == EXEC)

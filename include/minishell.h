@@ -6,7 +6,7 @@
 /*   By: sparth <sparth@student.42heilbronn.de>     +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/02/16 10:44:13 by aweissha          #+#    #+#             */
-/*   Updated: 2024/04/03 00:11:48 by sparth           ###   ########.fr       */
+/*   Updated: 2024/04/03 13:36:30 by sparth           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -21,6 +21,7 @@
 #include <fcntl.h>
 #include <stdbool.h>
 #include "../libft/libft.h"
+#include "../libft/get_next_line.h"
 
 typedef enum
 {
