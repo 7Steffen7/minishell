@@ -6,7 +6,7 @@
 /*   By: sparth <sparth@student.42heilbronn.de>     +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/02/16 11:07:54 by aweissha          #+#    #+#             */
-/*   Updated: 2024/04/03 00:11:15 by sparth           ###   ########.fr       */
+/*   Updated: 2024/04/03 15:55:28 by sparth           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -62,6 +62,13 @@ int	main(int argc, char **argv, char **env)
 	while (1)
 	{
 		input = readline("Minishell $> ");
+		if (ft_strncmp(input, "exit", ft_strlen(input) + 1) == 0)
+		{
+			//free everything
+			break;
+		}
+		// check for open quotes -> if open quotes abort
+		add_history(input);
 		data = init_data(argc, argv, env);
 		lexer(input, data);
 
@@ -75,6 +82,7 @@ int	main(int argc, char **argv, char **env)
 		test_parse_tree(data->parse_tree);
 		pre_exec(data->parse_tree);
 	}
+	return (0);
 }
 
 // cc test.c error.c free.c handle_quotes.c init.c lexer.c parse_utils.c parser.c utils.c token_list_utils.c ../libft/libft.a -lreadline
