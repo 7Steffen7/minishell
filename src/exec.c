@@ -6,7 +6,7 @@
 /*   By: sparth <sparth@student.42heilbronn.de>     +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/03/25 16:52:02 by sparth            #+#    #+#             */
-/*   Updated: 2024/04/03 17:04:00 by sparth           ###   ########.fr       */
+/*   Updated: 2024/04/03 17:41:01 by sparth           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -230,8 +230,12 @@ void piping(t_node *node)
 		waitpid(pid_left, NULL, 0);
 		waitpid(pid_right, &wpidstatus, 0);
 		// fprintf(stderr, "checkkkk\n");
-		// if (WIFEXITED(wpidstatus))
-		// 	exit(WEXITSTATUS(wpidstatus));
+		if (WIFEXITED(wpidstatus))
+		{
+			// usleep only 4 printf
+			printf("exit status: %d\n", WEXITSTATUS(wpidstatus));
+			usleep (20);
+		}
 }
 
 void	path_error_message(char *error)
@@ -264,9 +268,7 @@ void	exec(t_node *node)
 {
 	// node->pipe_end = 2;
 	if (node->node_type == PIPE)
-	{
 		piping(node);
-	}
 	else if (node->node_type == REDINPT)
 	{
 		input_redirect(node);
@@ -288,11 +290,7 @@ void	exec(t_node *node)
 		exec(node->next);
 	}
 	else if (node->node_type == EXEC)
-	{
 		execution(node);
-		// printf("exec_check\n");
-		// exit (127);
-	}
 }
 
 void	pre_exec(t_node *node)
@@ -309,6 +307,7 @@ void	pre_exec(t_node *node)
 			&& node->command[1] == NULL)
 		{
 			//free everything
+			printf("exit\n");
 			exit (0);
 		}
 		pid = fork();

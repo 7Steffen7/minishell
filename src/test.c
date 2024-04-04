@@ -6,7 +6,7 @@
 /*   By: sparth <sparth@student.42heilbronn.de>     +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/02/16 11:07:54 by aweissha          #+#    #+#             */
-/*   Updated: 2024/04/03 16:58:40 by sparth           ###   ########.fr       */
+/*   Updated: 2024/04/04 13:59:24 by sparth           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -62,11 +62,6 @@ int	main(int argc, char **argv, char **env)
 	while (1)
 	{
 		input = readline("Minishell $> ");
-		// if (ft_strncmp(input, "exit", ft_strlen(input) + 1) == 0)
-		// {
-		// 	//free everything
-		// 	break;
-		// }
 		// check for open quotes -> if open quotes abort
 		add_history(input);
 		data = init_data(argc, argv, env);
