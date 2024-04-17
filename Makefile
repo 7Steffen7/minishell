@@ -1,17 +1,22 @@
 NAME = minishell
 
-LIBFT = libft/libft.a
+
+LIBFT	= libft/
+
+LIBFTTARGET	= $(LIBFT)libft.a
+
 SRC_DIR = src/
 
-CC = gcc
-CFLAGS = -Wall -Werror -Wextra
+CC = cc
+CFLAGS = -Wall -Werror -Wextra -g 
+# -fsanitize=address
 RM = rm -f
 
 
-SRCS = 		$(SRC_DIR)test.c \
+SRCS = 		$(SRC_DIR)main.c \
 			$(SRC_DIR)error.c \
 			$(SRC_DIR)free.c \
-			$(SRC_DIR)handle_quotes.c \
+			$(SRC_DIR)free2.c \
 			$(SRC_DIR)init.c \
 			$(SRC_DIR)lexer.c \
 			$(SRC_DIR)parse_utils.c \
@@ -19,19 +24,45 @@ SRCS = 		$(SRC_DIR)test.c \
 			$(SRC_DIR)utils.c \
 			$(SRC_DIR)token_list_utils.c \
 			$(SRC_DIR)exec.c \
+			$(SRC_DIR)expander.c \
+			$(SRC_DIR)expander_utils.c \
+			$(SRC_DIR)expander_utils2.c \
+			$(SRC_DIR)env_list_utils.c \
+			$(SRC_DIR)env.c \
+			$(SRC_DIR)buildins.c \
+			$(SRC_DIR)buildin_utils.c \
+			$(SRC_DIR)syntax_check.c \
+			$(SRC_DIR)syntax_check_utils.c \
 			libft/get_next_line.c \
 			libft/get_next_line_utils.c \
+			libft/ft_printf.c \
+			$(SRC_DIR)exec_path.c \
+			$(SRC_DIR)exec_redir.c \
+			$(SRC_DIR)signals.c \
+			$(SRC_DIR)exec_env_buildins.c \
+			$(SRC_DIR)exec_print_buildins.c \
+			$(SRC_DIR)exec_cd_buildin.c \
+			$(SRC_DIR)exec_exit.c \
+			$(SRC_DIR)exec_utils.c \
+			$(SRC_DIR)exec_utils2.c \
+			$(SRC_DIR)exec_buildin.c \
+			$(SRC_DIR)exec_pipe.c \
 			# $(SRC_DIR)error.c \
 
 
 OBJS = $(SRCS:.c=.o)
 
+%.o: %.c
+	$(CC) $(CFLAGS) -c $< -o $@
+
 $(NAME): $(OBJS)
-	$(CC) -lreadline $(CFLAGS) $(OBJS) $(LIBFT) -o $(NAME)
+	@$(MAKE) -C $(LIBFT)
+	@$(CC) $(CFLAGS) $(OBJS) -lreadline -o $(NAME) $(LIBFTTARGET)
 
 all: $(NAME)
 
 clean:
+	@$(MAKE) -C $(LIBFT) fclean
 	$(RM) $(OBJS)
 
 fclean: clean

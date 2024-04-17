@@ -6,25 +6,20 @@
 /*   By: aweissha <aweissha@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/02/16 13:33:18 by aweissha          #+#    #+#             */
-/*   Updated: 2024/03/19 14:38:39 by aweissha         ###   ########.fr       */
+/*   Updated: 2024/04/16 12:35:35 by aweissha         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
 #include "../include/minishell.h"
 
-t_node	*init_node(type node_type)
+t_node	*init_node(t_type node_type)
 {
 	t_node	*node;
 
 	node = malloc(sizeof(t_node));
 	if (node == NULL)
 		return (NULL);
-	if (node_type == PIPE)
-		node->node_type = PIPE;
-	else if (node_type == REDIR)
-		node->node_type = REDIR;
-	else if (node_type == EXEC)
-		node->node_type = EXEC;	
+	node->node_type = node_type;
 	node->command = NULL;
 	node->infile = NULL;
 	node->outfile = NULL;
@@ -47,6 +42,7 @@ t_data	*init_data(int argc, char **argv, char **env)
 	data->env = env;
 	data->token_list = NULL;
 	data->parse_tree = NULL;
-	// data->nb_tokens = 0;
+	data->env_list = NULL;
+	data->last_exit_code = 0;
 	return (data);
 }

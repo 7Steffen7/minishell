@@ -6,7 +6,7 @@
 /*   By: aweissha <aweissha@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/03/19 11:26:08 by aweissha          #+#    #+#             */
-/*   Updated: 2024/03/19 11:26:44 by aweissha         ###   ########.fr       */
+/*   Updated: 2024/04/16 12:37:33 by aweissha         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -37,19 +37,21 @@ void	toklist_clear(t_token **token_list)
 	while (tmp != NULL)
 	{
 		tmp = (*token_list)->next;
-		free((*token_list)->token_str);
-		free((*token_list));
+		if ((*token_list)->token_str)
+			free((*token_list)->token_str);
+		if (*token_list)
+			free((*token_list));
 		*token_list = tmp;
 	}
 }
 
-t_token	*ft_toknew(char *token_str, type token_type)
+t_token	*ft_toknew(char *token_str, t_type token_type)
 {
 	t_token	*token_node;
 
 	token_node = malloc(sizeof(t_token));
 	if (token_node == NULL)
-		ft_error("Memory allocation for token list failed", errno);
+		return (NULL);
 	token_node->token_str = token_str;
 	token_node->token_type = token_type;
 	token_node->next = NULL;
